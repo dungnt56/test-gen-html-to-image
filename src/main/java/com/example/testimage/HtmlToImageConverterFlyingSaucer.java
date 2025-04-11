@@ -14,7 +14,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.UUID;
 
-public class HtmlToImageConverter {
+public class HtmlToImageConverterFlyingSaucer {
 
     public static void main(String[] args) {
         String templatePath = "src/main/resources/templates/certificate-template.html";
