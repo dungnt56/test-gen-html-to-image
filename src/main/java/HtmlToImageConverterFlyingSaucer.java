@@ -24,9 +24,9 @@ public class HtmlToImageConverterFlyingSaucer {
 
     public static void main(String[] args) throws IOException, FontFormatException {
         CertificateGenerateDTO certificateGenerateDTO = new CertificateGenerateDTO();
-//        certificateGenerateDTO.setLogoSellerUrl("https://cdn-migi-2.laosedu.la/f/laosedu/4fc25ce6eb8c97f4cb1deb10be041ce3/1f0a2d5c2b9e171c8da66644086577cefa0f60b414784c8de2e31006ec3a2ffb/taoanhdep_chu_ky_85765.png");
-        certificateGenerateDTO.setStudentName("Nguyễn Văn Aຮັບຮອງ");
-        certificateGenerateDTO.setCourseName("Lập trình Java Lập trình Java Lập trình JavaLập trình JavaLập trình Java Lập trình Java Lập trình Java Lập trình Java");
+        certificateGenerateDTO.setLogoSellerUrl("https://cdn-migi-2.laosedu.la/f/laosedu/4fc25ce6eb8c97f4cb1deb10be041ce3/1f0a2d5c2b9e171c8da66644086577cefa0f60b414784c8de2e31006ec3a2ffb/taoanhdep_chu_ky_85765.png");
+        certificateGenerateDTO.setStudentName("Nguyễnnhພາສາລາວế ớ ມີຕົວອັກສອນຫnguyễn ngọc anhຼວ ມີຕົວອັກສອນຫຼາຍແບບ");
+        certificateGenerateDTO.setCourseName("Móc thú bông dễ dàng cho người mới bắt đầu");
         certificateGenerateDTO.setCertificateTime(Instant.now());
         // Chạy hàm chuyển đổi HTML sang hình ảnh
         generateCourseCertificate(certificateGenerateDTO);
@@ -36,7 +36,7 @@ public class HtmlToImageConverterFlyingSaucer {
 
         String outputDirectory = "src/main/resources/";
 //        Font font = Font.createFont(Font.TRUETYPE_FONT, new File("src/main/resources/fonts/NotoSans-Regular.ttf"));
-        Font font = Font.createFont(Font.TRUETYPE_FONT, new File("src/main/resources/fonts/NotoSansLaoLooped-Regular.ttf"));
+        Font font = Font.createFont(Font.TRUETYPE_FONT, new File("src/main/resources/fonts/NotoSansLao-Regular.ttf"));
 
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         ge.registerFont(font);
@@ -53,7 +53,22 @@ public class HtmlToImageConverterFlyingSaucer {
             Context context = new Context();
             context.setVariable("certificateTitle", "Chứng nhận");
             context.setVariable("certificateObject", "ông / bà");
-            context.setVariable("buyerName", certificateGenerateDTO.getStudentName());
+            context.setVariable("buyerName", wrapLaoText(certificateGenerateDTO.getStudentName()));
+
+            String buyerName = certificateGenerateDTO.getStudentName();
+            int nameLength = buyerName.length();
+            String nameFontSize;
+            if (nameLength <= 30) {
+                nameFontSize = "54px";
+            } else if (nameLength <= 60) {
+                nameFontSize = "32px";
+            } else if (nameLength <= 100) {
+                nameFontSize = "25px";
+            } else {
+                nameFontSize = "20px";
+            }
+            context.setVariable("buyerNameSize", nameFontSize);
+
             context.setVariable("finishTitle", "Đã hoàn thành khóa học");
             context.setVariable("courseName", certificateGenerateDTO.getCourseName());
             context.setVariable("dateTitle", "Ngày hoàn thành");
@@ -108,5 +123,36 @@ public class HtmlToImageConverterFlyingSaucer {
             System.err.println("Error: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+
+
+    private static final String LAO_RANGE = "\\u0E80-\\u0EFF";
+
+    public static String wrapLaoText(String text) {
+        StringBuilder result = new StringBuilder();
+        boolean inLao = false;
+
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            boolean isLao = String.valueOf(c).matches("[" + LAO_RANGE + "]");
+
+            if (isLao && !inLao) {
+                result.append("<span class='lao-text'>");
+                inLao = true;
+            } else if (!isLao && inLao) {
+                result.append("</span>");
+                inLao = false;
+            }
+
+            result.append(c);
+        }
+
+        // Đóng thẻ nếu còn mở
+        if (inLao) {
+            result.append("</span>");
+        }
+
+        return result.toString();
     }
 }

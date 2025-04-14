@@ -129,7 +129,7 @@
             font-feature-settings: 'clig' off, 'liga' off;
             font-size: 18px;
             font-style: normal;
-            font-weight: 700;
+            font-weight: 600;
             line-height: 24px;
             text-transform: uppercase;
             margin-bottom: 28px;
@@ -137,9 +137,9 @@
             min-height: 85px;
         }
         .certificate-footer{
-            position: absolute;
-            bottom: 0;
-            right: 50%;
+            /*position: absolute;*/
+            /*bottom: 0;*/
+            /*right: 50%;*/
         }
         .certificate-footer-right {
         }
@@ -171,6 +171,14 @@
         .pd-30{
             padding: 0 30px;
         }
+        .viet-text {
+            /*font-family: "Times New Roman", "Arial", sans-serif; !* Font cho tiếng Việt *!*/
+            /*color: #333; !* Màu chữ tiếng Việt *!*/
+        }
+
+        .lao-text {
+            font-family: "Noto Sans Lao", "Phetsarath OT", sans-serif;
+        }
 
     </style>
 </head>
@@ -180,11 +188,11 @@
             <div class="certificate-logo">
 
                 <img src="https://cdn-migi-2.laosedu.la/f/laosedu/4fc25ce6eb8c97f4cb1deb10be041ce3/da3f6a3dcf39cfa0e3abd593433f6ad581611531244c2cb197434ff28abf85f3/icon_logo.png" alt="Seller Logo" class="certificate-logo-seller"/>
-                <img th:if="${sellerLogo != null}" th:src="${sellerLogo}" alt="Seller Logo" class="certificate-logo-seller"/>
+                <img th:if="${sellerLogo != null}" th:src="${sellerLogo}" alt="Seller Logo" class="certificate-logo-seller" style="width: 80px"/>
             </div>
             <h2 class="certificate-title" th:text="${certificateTitle}">Default Certificate Title</h2>
             <h5 class="certificate-object" th:text="${certificateObject}">Default Certificate Object</h5>
-            <h3 class="certificate-buyer-name pd-30" th:text="${buyerName}">Default Buyer Name</h3>
+            <h3 class="certificate-buyer-name pd-30" th:style="'font-size: ' + ${buyerNameSize} + ';'" th:utext="${buyerName}">Default Buyer Name</h3>
             <h4 class="certificate-finish-title" th:text="${finishTitle}">Default Finish Title</h4>
             <p class="certificate-course-name pd-30" th:text="${courseName}">Default Course Name</p>
 
