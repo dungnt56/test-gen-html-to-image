@@ -1,3 +1,7 @@
+import com.example.testimage.dto.CertificateGenerateDTO;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.templateresolver.FileTemplateResolver;
 import org.xhtmlrenderer.simple.Graphics2DRenderer;
 
 import javax.imageio.ImageIO;
@@ -9,6 +13,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Date;
 import java.util.UUID;
@@ -16,60 +23,90 @@ import java.util.UUID;
 public class HtmlToImageConverterFlyingSaucer {
 
     public static void main(String[] args) throws IOException, FontFormatException {
-        String templatePath = "src/main/resources/templates/certificate-template.html";
-        String outputDirectory = "src/main/resources/"; // Thư mục lưu ảnh
-        Font laoFont = Font.createFont(Font.TRUETYPE_FONT, new File("src/main/resources/fonts/Phetsarath_OT.ttf"));
+        CertificateGenerateDTO certificateGenerateDTO = new CertificateGenerateDTO();
+//        certificateGenerateDTO.setLogoSellerUrl("https://cdn-migi-2.laosedu.la/f/laosedu/4fc25ce6eb8c97f4cb1deb10be041ce3/1f0a2d5c2b9e171c8da66644086577cefa0f60b414784c8de2e31006ec3a2ffb/taoanhdep_chu_ky_85765.png");
+        certificateGenerateDTO.setStudentName("Nguyễn Văn Aຮັບຮອງ");
+        certificateGenerateDTO.setCourseName("Lập trình Java Lập trình Java Lập trình JavaLập trình JavaLập trình Java Lập trình Java Lập trình Java Lập trình Java");
+        certificateGenerateDTO.setCertificateTime(Instant.now());
+        // Chạy hàm chuyển đổi HTML sang hình ảnh
+        generateCourseCertificate(certificateGenerateDTO);
+    }
+
+    private static void generateCourseCertificate(CertificateGenerateDTO certificateGenerateDTO) throws IOException, FontFormatException {
+
+        String outputDirectory = "src/main/resources/";
+//        Font font = Font.createFont(Font.TRUETYPE_FONT, new File("src/main/resources/fonts/NotoSans-Regular.ttf"));
+        Font font = Font.createFont(Font.TRUETYPE_FONT, new File("src/main/resources/fonts/NotoSansLaoLooped-Regular.ttf"));
+
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        ge.registerFont(laoFont);
+        ge.registerFont(font);
 
         try {
-            // Đọc file ảnh và chuyển thành Base64
-            byte[] imageBytes = Files.readAllBytes(Paths.get("src/main/resources/templates/certificate_course.png"));
-            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+            // 1. Khởi tạo Thymeleaf TemplateEngine
+            TemplateEngine templateEngine = new TemplateEngine();
+            FileTemplateResolver templateResolver = new FileTemplateResolver();
+            templateResolver.setPrefix("src/main/resources/templates/");
+            templateResolver.setSuffix(".html");
+            templateEngine.setTemplateResolver(templateResolver);
 
-            // Đọc nội dung HTML và thay thế placeholder
-            String htmlContent = new String(Files.readAllBytes(Paths.get(templatePath)))
-                    .replace("${base64Image}", base64Image);
+            // 2. Tạo context và thêm các biến
+            Context context = new Context();
+            context.setVariable("certificateTitle", "Chứng nhận");
+            context.setVariable("certificateObject", "ông / bà");
+            context.setVariable("buyerName", certificateGenerateDTO.getStudentName());
+            context.setVariable("finishTitle", "Đã hoàn thành khóa học");
+            context.setVariable("courseName", certificateGenerateDTO.getCourseName());
+            context.setVariable("dateTitle", "Ngày hoàn thành");
+            Instant instant = certificateGenerateDTO.getCertificateTime();
+            ZoneId zoneId = ZoneId.systemDefault();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(zoneId);
+            String formattedDate = formatter.format(instant);
 
-            // Gán giá trị cho các biến
-            String certificateTitle = "ຮັບຮອງ";
-            String certificateObject = "ທ້າວ / ນາງ";
-            String buyerName = "Nguyễn Văn A";
-            String finishTitle = "ໄດ້ສໍາເລັດຫຼັກສູດ";
+            context.setVariable("certificateTime", formattedDate);
 
-            // Thay thế placeholder bằng giá trị thực tế
-            htmlContent = htmlContent.replace("${certificateTitle}", certificateTitle)
-                    .replace("${certificateObject}", certificateObject)
-                    .replace("${buyerName}", buyerName)
-                    .replace("${finishTitle}", finishTitle);
-            // Tạo file HTML tạm thời để render
+            context.setVariable("sellerLogo",certificateGenerateDTO.getLogoSellerUrl());
+
+            // 4. Xử lý template với Thymeleaf
+            String processedHtml = templateEngine.process("certificate-template", context);
+
+            // 5. Tạo file HTML tạm thời để render
             File tempHtmlFile = File.createTempFile("certificate-", ".html");
-            Files.write(tempHtmlFile.toPath(), htmlContent.getBytes());
-            Files.write(tempHtmlFile.toPath(), htmlContent.getBytes(StandardCharsets.UTF_8));
-            // Cấu hình kích thước hình ảnh (chiều rộng và chiều cao)
-            int width = 842; // Chiều rộng hình ảnh
-            int height = 600; // Chiều cao hình ảnh
+            Files.write(tempHtmlFile.toPath(), processedHtml.getBytes(StandardCharsets.UTF_8));
 
-
-            // Render HTML thành hình ảnh bằng Flying Saucer
+            // 6. Render HTML thành hình ảnh
+            int width = 842;
             BufferedImage image = Graphics2DRenderer.renderToImageAutoSize(
                     tempHtmlFile.toURI().toURL().toExternalForm(),
                     width,
                     BufferedImage.TYPE_INT_ARGB
             );
+            File dir = new File(outputDirectory);
+            File[] oldImages = dir.listFiles((d, name) -> name.startsWith("certificate-") && name.endsWith(".png"));
+            if (oldImages != null) {
+                for (File oldImage : oldImages) {
+                    if (oldImage.delete()) {
+//                        System.out.println("Deleted old image: " + oldImage.getName());
+                    } else {
+//                        System.err.println("Failed to delete: " + oldImage.getName());
+                    }
+                }
+            }
 
-            // Tạo tên file đầu ra với timestamp và UUID
+            // 7. Lưu hình ảnh đầu ra
             String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
             String randomId = UUID.randomUUID().toString().substring(0, 8);
             String outputPath = outputDirectory + "certificate-" + timestamp + "-" + randomId + ".png";
-
-            // Lưu hình ảnh ra file PNG
             ImageIO.write(image, "png", new File(outputPath));
+            System.out.println("Image created successfully: " + outputPath);
 
-            System.out.println("Image path created: " + outputPath);
-
+            boolean deleted = tempHtmlFile.delete();
+            if (!deleted) {
+                System.err.println("Cảnh báo: Không thể xóa file tạm " + tempHtmlFile.getPath());
+                tempHtmlFile.deleteOnExit();
+            }
         } catch (IOException e) {
             System.err.println("Error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
