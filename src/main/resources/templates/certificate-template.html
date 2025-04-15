@@ -9,6 +9,16 @@
         /*    src: url('fonts/Phetsarath_OT.ttf') format('truetype');*/
         /*}*/
 
+        @font-face {
+            font-family: 'NotoSans';
+            src: url('file:src/main/resources/fonts/NotoSans-Regular.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'NotoSansLao';
+            src: url('file:src/main/resources/fonts/NotoSansLao-Regular.ttf') format('truetype');
+        }
+
         /*@font-face {*/
         /*    font-family: 'Noto Sans Lao';*/
         /*    src: url('fonts/NotoSansLao-Regular.ttf') format('truetype');*/
@@ -55,7 +65,6 @@
         }
         .certificate-font {
             width: 100%;
-            font-family: 'Baskerville', serif;
         }
         .certificate-logo {
             margin-top: 54px;
@@ -172,7 +181,6 @@
         .pd-30{
             padding: 0 30px;
         }
-
     </style>
 </head>
 <body>
@@ -185,7 +193,8 @@
         </div>
         <h2 class="certificate-title" th:text="${certificateTitle}">Default Certificate Title</h2>
         <h5 class="certificate-object" th:text="${certificateObject}">Default Certificate Object</h5>
-        <h3 class="certificate-buyer-name pd-30" th:style="'font-size: ' + ${buyerNameSize} + ';'" th:text="${buyerName}">Default Buyer Name</h3>
+<!--        <h3 class="certificate-buyer-name pd-30" th:style="'font-size: ' + ${buyerNameSize} + ';'" th:text="${buyerName}">Default Buyer Name</h3>-->
+        <h3 class="certificate-buyer-name pd-30" th:style="'font-size: ' + ${buyerNameSize} + ';'" th:utext="${buyerName}">Default Buyer Name</h3>
         <h4 class="certificate-finish-title" th:text="${finishTitle}">Default Finish Title</h4>
         <p class="certificate-course-name pd-30" th:text="${courseName}">Default Course Name</p>
 
