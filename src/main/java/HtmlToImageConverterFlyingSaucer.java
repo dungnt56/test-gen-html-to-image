@@ -18,6 +18,7 @@ import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -48,11 +49,13 @@ public class HtmlToImageConverterFlyingSaucer {
 
         String outputDirectory = "src/main/resources/";
 //        Font font = Font.createFont(Font.TRUETYPE_FONT, new File("src/main/resources/fonts/NotoSans-Regular.ttf"));
-        Font font1 = Font.createFont(Font.TRUETYPE_FONT, new File("src/main/resources/fonts/NotoSansLao-Regular.ttf"));
-
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+//        Font font1 = Font.createFont(Font.TRUETYPE_FONT, new File("src/main/resources/fonts/NotoSansLao-Regular.ttf"));
+//
+//        System.out.println("Font loaded: " + font.getFontName());
+//        System.out.println("Font loaded: " + font1.getFontName());
+//        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 //        ge.registerFont(font);
-        ge.registerFont(font1);
+//        ge.registerFont(font1);
 
         try {
             // 1. Khởi tạo Thymeleaf TemplateEngine
@@ -101,7 +104,7 @@ public class HtmlToImageConverterFlyingSaucer {
             Files.write(tempHtmlFile.toPath(), processedHtml.getBytes(StandardCharsets.UTF_8));
 
             File dir = new File(outputDirectory);
-            File[] oldImages = dir.listFiles((d, name) -> name.startsWith("certificate-") && name.endsWith(".png"));
+            File[] oldImages = dir.listFiles((d, name) -> name.startsWith("certificate-"));
             if (oldImages != null) {
                 for (File oldImage : oldImages) {
                     if (oldImage.delete()) {
@@ -111,14 +114,18 @@ public class HtmlToImageConverterFlyingSaucer {
                     }
                 }
             }
-//
             String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
             String randomId = UUID.randomUUID().toString().substring(0, 8);
 
-            String pdfOutputPath = outputDirectory + "certificate-" + timestamp + "-" + randomId + ".pdf";
+            String imageOutputPath = outputDirectory + "certificate-" + timestamp + "-" + randomId + ".png";
+
+            ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream();
 
             ConverterProperties properties = new ConverterProperties();
-            PdfWriter writer = new PdfWriter(pdfOutputPath);
+            File baseDir = new File("src/main/resources/");
+            properties.setBaseUri(baseDir.toURI().toString());
+
+            PdfWriter writer = new PdfWriter(pdfOutputStream);
             PdfDocument pdfDoc = new PdfDocument(writer);
 
             pdfDoc.setDefaultPageSize(new PageSize(842, 600));
@@ -126,19 +133,15 @@ public class HtmlToImageConverterFlyingSaucer {
             HtmlConverter.convertToPdf(processedHtml, pdfDoc, properties);
             pdfDoc.close();
 
-            System.out.println("PDF created successfully: " + pdfOutputPath);
-
-            PDDocument document = PDDocument.load(new File(pdfOutputPath));
+            byte[] pdfBytes = pdfOutputStream.toByteArray();
+            PDDocument document = PDDocument.load(pdfBytes);
             PDFRenderer pdfRenderer = new PDFRenderer(document);
 
-            int dpi = 600;
+            int dpi = 100;
             BufferedImage bim = pdfRenderer.renderImageWithDPI(0, dpi);
-
-            String imageOutputPath = outputDirectory + "certificate-" + timestamp + "-" + randomId + ".png";
 
             ImageIO.write(bim, "png", new File(imageOutputPath));
             document.close();
-
             System.out.println("Image created successfully: " + imageOutputPath);
             boolean deleted = tempHtmlFile.delete();
             if (!deleted) {
