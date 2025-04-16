@@ -66,6 +66,11 @@
 			<artifactId>html2pdf</artifactId>
 			<version>4.0.5</version>
 		</dependency>
+		<dependency>
+			<groupId>com.openhtmltopdf</groupId>
+			<artifactId>openhtmltopdf-pdfbox</artifactId>
+			<version>1.0.10</version>
+		</dependency>
 		<!-- Apache PDFBox -->
 		<dependency>
 			<groupId>org.apache.pdfbox</groupId>
