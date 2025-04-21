@@ -9,6 +9,7 @@ import org.apache.pdfbox.rendering.PDFRenderer;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
+import org.w3c.dom.Element;
 import org.xhtmlrenderer.simple.Graphics2DRenderer;
 
 import javax.imageio.*;
@@ -31,8 +32,14 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.UUID;
-
+import javax.imageio.*;
+import javax.imageio.metadata.*;
+import javax.imageio.stream.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.Iterator;
 public class HtmlToImageConverterFlyingSaucer {
 
     public static void main(String[] args) throws IOException, FontFormatException {
@@ -73,8 +80,10 @@ public class HtmlToImageConverterFlyingSaucer {
 
             // 2. Tạo context và thêm các biến
             Context context = new Context();
-            context.setVariable("certificateTitle", "ໃບຢັ້ງຢືນ");
-            context.setVariable("certificateObject", "ທ້າວ / ນາງ");
+//            context.setVariable("certificateTitle", "ໃບຢັ້ງຢືນ");
+            context.setVariable("certificateTitle", "Chứng nhận");
+//            context.setVariable("certificateObject", "ທ້າວ / ນາງ");
+            context.setVariable("certificateObject", "ông / bà");
             context.setVariable("buyerName", certificateGenerateDTO.getStudentName());
 
             String buyerName = certificateGenerateDTO.getStudentName();
@@ -90,9 +99,11 @@ public class HtmlToImageConverterFlyingSaucer {
                 nameFontSize = "18px";
             }
             context.setVariable("buyerNameSize", nameFontSize);
-            context.setVariable("finishTitle", "ໄດ້ສໍາເລັດຫຼັກສູດ");
+//            context.setVariable("finishTitle", "ໄດ້ສໍາເລັດຫຼັກສູດ");
+            context.setVariable("finishTitle", "Đã hoàn thành khóa học");
             context.setVariable("courseName", certificateGenerateDTO.getCourseName());
-            context.setVariable("dateTitle", "ວັນທີີສຳເລັດ");
+//            context.setVariable("dateTitle", "ວັນທີີສຳເລັດ");
+            context.setVariable("dateTitle", "Ngày hoàn thành");
             Instant instant = certificateGenerateDTO.getCertificateTime();
             ZoneId zoneId = ZoneId.systemDefault();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(zoneId);
