@@ -87,15 +87,21 @@
         .certificate-buyer-name{
             margin-bottom: 12px;
             margin-top: 0;
-            color: #B3842C;
             text-align: center;
+            line-height: normal;
+            height: 75px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .certificate-buyer-name h3{
+            margin: 0;
             font-feature-settings: 'liga' off, 'clig' off;
             font-size: 54px;
             font-style: italic;
             font-weight: 500;
             transform: skewX(-15deg);
-            line-height: normal;
-            height: 75px;
+            color: #B3842C;
         }
         .certificate-finish-title{
             color: #000;
@@ -118,7 +124,7 @@
             font-weight: 700;
             line-height: 24px;
             text-transform: uppercase;
-            margin-bottom: 28px;
+            margin-bottom: 45px;
             align-items: start;
             min-height: 95px;
             margin-top: 0;
@@ -171,7 +177,9 @@
         </div>
         <h2 class="certificate-title" th:text="${certificateTitle}">Default Certificate Title</h2>
         <h5 class="certificate-object" th:text="${certificateObject}">Default Certificate Object</h5>
-        <h3 class="certificate-buyer-name pd-30" th:style="'font-size: ' + ${buyerNameSize} + ';'" th:utext="${buyerName}">Default Buyer Name</h3>
+        <div class="certificate-buyer-name pd-30">
+            <h3 th:style="'font-size: ' + ${buyerNameSize} + ';'" th:utext="${buyerName}">Default Buyer Name</h3>
+        </div>
         <h4 class="certificate-finish-title" th:text="${finishTitle}">Default Finish Title</h4>
         <p class="certificate-course-name pd-30" th:text="${courseName}">Default Course Name</p>
 
